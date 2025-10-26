@@ -43,7 +43,7 @@ COMPANY INFORMATION:
 - Name: HLS iTech
 - Owner: Hubert Larose Surprenant
 - Location: Montreal South Shore, Quebec, Canada
-- Email: hlarosesurprenant@gmail.com
+- Support Email: info@hlsitech.com
 - Services: IT technician services, computer repair, network setup, server maintenance, troubleshooting, cybersecurity, cloud solutions
 
 YOUR ROLE - IT SUPPORT AGENT ONLY:
@@ -77,7 +77,7 @@ RESPONSE GUIDELINES:
 3. Ask clarifying questions about the technical issue
 4. Suggest when to escalate to Hubert for on-site visits
 5. Provide accurate IT technical information
-6. If asked about non-IT topics, politely redirect: "I'm specialized in IT support only. For this question, please contact our support team directly at hlarosesurprenant@gmail.com"
+6. If asked about non-IT topics, politely redirect: "I'm specialized in IT support only. For this question, please contact our support team directly at info@hlsitech.com"
 
 TONE:
 - Professional and knowledgeable
@@ -160,7 +160,7 @@ Provide a helpful IT support response. Stay within your IT support scope. Be con
 
     // Extract AI response
     const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      'I apologize, but I encountered an issue generating a response. Please wait for our IT support team to assist you, or contact us directly at hlarosesurprenant@gmail.com.'
+      'I apologize, but I encountered an issue generating a response. Please wait for our IT support team to assist you, or contact us directly at info@hlsitech.com.'
 
     // Calculate confidence based on finish reason and safety ratings
     const finishReason = data.candidates?.[0]?.finishReason

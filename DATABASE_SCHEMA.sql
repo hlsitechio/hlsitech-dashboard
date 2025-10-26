@@ -292,7 +292,7 @@ CREATE TRIGGER update_canned_responses_updated_at BEFORE UPDATE ON public.canned
 -- ============================================================================
 INSERT INTO public.agents (name, email, avatar_url, is_ai, is_active)
 VALUES
-    ('Hubert Larose-Surprenant', 'hlarosesurprenant@gmail.com', NULL, false, true),
+    ('HLS iTech Support', 'info@hlsitech.com', NULL, false, true),
     ('HLSitech AI Assistant', 'ai@hlsitech.com', NULL, true, true)
 ON CONFLICT (email) DO NOTHING;
 

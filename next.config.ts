@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -15,10 +16,18 @@ const nextConfig: NextConfig = {
   },
 
   webpack(config) {
+    // Configure path alias resolution
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+    };
+
+    // SVG handling
     config.module.rules.push({
       test: /\.svg$/,
       use: ["@svgr/webpack"],
     });
+
     return config;
   },
 };

@@ -13,6 +13,7 @@ export default function ChatWindow({ conversationId, onClose }: ChatWindowProps)
   const [messages, setMessages] = useState<any[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [sendingTranscript, setSendingTranscript] = useState(false)
   const [conversation, setConversation] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -138,6 +139,159 @@ export default function ChatWindow({ conversationId, onClose }: ChatWindowProps)
     }
   }
 
+  const handleDownloadTranscript = () => {
+    if (!conversation || messages.length === 0) {
+      alert('No messages to download')
+      return
+    }
+
+    // Generate HTML content
+    const messagesHtml = messages
+      .map((msg: any) => {
+        const time = new Date(msg.created_at).toLocaleString()
+        let senderLabel = ''
+        let senderColor = ''
+        let bgColor = ''
+
+        if (msg.sender_type === 'user') {
+          senderLabel = conversation.users?.name || 'Customer'
+          senderColor = '#2563eb'
+          bgColor = '#eff6ff'
+        } else if (msg.sender_type === 'agent') {
+          senderLabel = 'Hubert from HLS iTech'
+          senderColor = '#059669'
+          bgColor = '#f0fdf4'
+        } else {
+          senderLabel = 'AI Assistant'
+          senderColor = '#6b7280'
+          bgColor = '#f9fafb'
+        }
+
+        return `
+          <div style="margin-bottom: 20px; padding: 15px; background: ${bgColor}; border-left: 4px solid ${senderColor}; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <strong style="color: ${senderColor};">${senderLabel}</strong>
+              <span style="color: #6b7280; font-size: 12px;">${time}</span>
+            </div>
+            <div style="color: #374151; line-height: 1.6; white-space: pre-wrap;">${msg.content}</div>
+          </div>
+        `
+      })
+      .join('')
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Conversation Transcript - ${conversation.subject || 'General Support'}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background-color: #f3f4f6;
+    }
+    .header {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 12px 12px 0 0;
+      text-align: center;
+    }
+    .info {
+      background: #f9fafb;
+      padding: 30px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .messages {
+      background: white;
+      padding: 30px;
+    }
+    .footer {
+      background: #111827;
+      color: #9ca3af;
+      padding: 30px;
+      text-align: center;
+      border-radius: 0 0 12px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💬 Conversation Transcript</h1>
+    <p>HLS iTech Support - Montreal South Shore</p>
+  </div>
+  <div class="info">
+    <p><strong>Date:</strong> ${new Date(conversation.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <p><strong>Customer:</strong> ${conversation.users?.name || conversation.users?.email || 'Unknown'}</p>
+    <p><strong>Subject:</strong> ${conversation.subject || 'General Support'}</p>
+    <p><strong>Total Messages:</strong> ${messages.length}</p>
+  </div>
+  <div class="messages">
+    <h2>📝 Conversation History</h2>
+    ${messagesHtml}
+  </div>
+  <div class="footer">
+    <h3>HLS iTech</h3>
+    <p>Professional IT Services<br>Montreal South Shore, Quebec</p>
+    <p>📧 info@hlsitech.com | 📞 514.371.8022 | 🌐 hlsitech.com</p>
+    <p style="font-size: 11px; margin-top: 20px;">© ${new Date().getFullYear()} HLS iTech. All rights reserved.</p>
+  </div>
+</body>
+</html>
+    `
+
+    // Create blob and download
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `transcript-${conversationId}-${new Date().toISOString().split('T')[0]}.html`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleSendTranscriptToCustomer = async () => {
+    if (!conversation?.users?.email) {
+      alert('Customer email not available')
+      return
+    }
+
+    if (!confirm(`Send transcript to ${conversation.users.email}?`)) {
+      return
+    }
+
+    setSendingTranscript(true)
+    try {
+      const response = await fetch('https://hlsitech.com/api/send-transcript', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          conversationId: conversationId,
+          userEmail: conversation.users.email,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to send transcript')
+      }
+
+      alert(`Transcript sent successfully to ${conversation.users.email}`)
+    } catch (error) {
+      console.error('Error sending transcript:', error)
+      alert(`Failed to send transcript: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setSendingTranscript(false)
+    }
+  }
+
   const renderMessage = (message: any) => {
     const isAgent = message.sender_type === 'agent'
     const isAI = message.sender_type === 'ai'
@@ -215,14 +369,43 @@ export default function ChatWindow({ conversationId, onClose }: ChatWindowProps)
             </p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+
+        <div className="flex items-center space-x-2">
+          {/* Download Transcript Button */}
+          <button
+            onClick={handleDownloadTranscript}
+            className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition flex items-center space-x-1"
+            title="Download transcript to PC"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Download</span>
+          </button>
+
+          {/* Send Transcript Button */}
+          <button
+            onClick={handleSendTranscriptToCustomer}
+            disabled={sendingTranscript}
+            className="px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Email transcript to customer"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span>{sendingTranscript ? 'Sending...' : 'Email to Customer'}</span>
+          </button>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Messages */}

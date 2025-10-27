@@ -24,10 +24,15 @@ The website chat Edge Function needs Supabase credentials to save messages.
 
 | Key | Value | Scopes |
 |-----|-------|--------|
-| `SUPABASE_URL` | `https://ggppnyylqpjqutzbdhmm.supabase.co` | All scopes |
-| `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdncHBueXlscXBqcXV0emJkaG1tIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTQzOTUzMSwiZXhwIjoyMDc3MDE1NTMxfQ.QJgPoyhoRNI2OZ0gCzfdCeV7cvlW7s3FuH_-4bIsdd8` | All scopes |
-| `GEMINI_API_KEY` | `AIzaSyBJ0MT3q-ro7JaXcWsll3C8SF0mbwSIois` | All scopes |
-| `RESEND_API_KEY` | `re_RhSExPm4_75mZUNFfD2Uw52jEwontYjH1` | All scopes |
+| `SUPABASE_URL` | Your Supabase project URL from dashboard | All scopes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key from dashboard | All scopes |
+| `GEMINI_API_KEY` | Your Google Gemini API key | All scopes |
+| `RESEND_API_KEY` | Your Resend API key | All scopes |
+
+**Note:** Get these values from:
+- Supabase: https://supabase.com/dashboard/project/_/settings/api
+- Gemini: https://aistudio.google.com/app/apikey
+- Resend: https://resend.com/api-keys
 
 4. Click **Save** after adding each one
 

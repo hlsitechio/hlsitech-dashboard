@@ -66,6 +66,37 @@ export default function LiveChatPage() {
     }
   }
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      // First, delete all messages in the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId)
+
+      if (messagesError) throw messagesError
+
+      // Then delete the conversation itself
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+
+      if (conversationError) throw conversationError
+
+      // If the deleted conversation was selected, clear selection
+      if (selectedConversationId === conversationId) {
+        setSelectedConversationId(null)
+      }
+
+      // Reload conversations
+      loadConversations()
+    } catch (error) {
+      console.error('Error deleting conversation:', error)
+      alert('Failed to delete conversation. Please try again.')
+    }
+  }
+
   return (
     <div className="h-[calc(100vh-100px)]">
       <div className="mb-6">
@@ -84,6 +115,7 @@ export default function LiveChatPage() {
             conversations={conversations}
             selectedId={selectedConversationId}
             onSelectConversation={setSelectedConversationId}
+            onDeleteConversation={handleDeleteConversation}
             loading={loading}
           />
         </div>

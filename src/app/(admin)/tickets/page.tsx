@@ -106,7 +106,7 @@ export default function TicketsPage() {
 
   const handleUpdateTicketStatus = async (ticketId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('tickets')
         .update({
           status: newStatus,

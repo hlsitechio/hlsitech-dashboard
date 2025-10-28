@@ -79,7 +79,7 @@ export default function TicketDetail({
   const handleAssignAgent = async (agentId: string | null) => {
     setUpdating(true)
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('tickets')
         .update({
           assigned_to: agentId,
@@ -102,7 +102,7 @@ export default function TicketDetail({
   const handleUpdatePriority = async (newPriority: string) => {
     setUpdating(true)
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('tickets')
         .update({
           priority: newPriority,
